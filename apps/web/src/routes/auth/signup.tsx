@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { AppLogo } from "@/components/app-logo";
 import type { Route } from "./+types/signup";
-import { Link } from "react-router";
+import { Link, redirect } from "react-router";
 import { withZod } from "@rvf/zod";
 import { z } from "zod";
 import { useForm, validationError } from "@rvf/react-router";
@@ -46,9 +46,21 @@ export async function action({ request }: Route.ActionArgs) {
   }
 
   const signupUC = new SignUpUseCase();
-  await signupUC.createUser(email, firstName, lastName, password);
+  const result = await signupUC.createUser(
+    email,
+    firstName,
+    lastName,
+    password
+  );
+  if (result.success) {
+    return redirect("/login");
+  }
 
-  return null;
+  return validationError({
+    fieldErrors: {
+      email: result.error,
+    },
+  });
 }
 
 export default function Page() {

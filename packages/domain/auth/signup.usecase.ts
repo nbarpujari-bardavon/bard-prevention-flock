@@ -9,18 +9,11 @@ export class SignUpUseCase {
     password: string
   ) {
     const userRepo = new UserRepo();
-    const result = await userRepo.createUser({
+    return await userRepo.createUser({
       email,
       first_name,
       last_name,
       status: "pending",
     });
-
-    if (result.success) {
-      console.log("User created successfully", result.value);
-      return;
-    }
-
-    console.error("Failed to create user", result.error, result.originalError);
   }
 }
