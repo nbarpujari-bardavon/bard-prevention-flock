@@ -16,6 +16,13 @@
     "dev": {
       "cache": false,
       "persistent": true
+    },
+    "drizzle:generate": {},
+    "drizzle:migrate": {},
+    "drizzle:push": {
+      "cache": false,
+      "env": ["DATABASE_URL"],
+      "inputs": [".env*"]
     }
   }
 }
