@@ -8,8 +8,9 @@ import type { Route } from "./+types/signup";
 import { Link } from "react-router";
 import { withZod } from "@rvf/zod";
 import { z } from "zod";
-import { useForm } from "@rvf/react-router";
+import { useForm, validationError } from "@rvf/react-router";
 import { FormInput } from "@/components/forms/validated-input";
+import { SignUpUseCase } from "@repo/domain/auth";
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: "Preventure - Sign up" }];
@@ -24,6 +25,31 @@ const signupFormValidator = withZod(
     password_confirmation: z.string().trim().min(8),
   })
 );
+
+export async function action({ request }: Route.ActionArgs) {
+  const submission = await signupFormValidator.validate(
+    await request.formData()
+  );
+  if (submission.error) {
+    return validationError(submission.error);
+  }
+
+  const { email, firstName, lastName, password, password_confirmation } =
+    submission.data;
+
+  if (password !== password_confirmation) {
+    return validationError({
+      fieldErrors: {
+        password_confirmation: "Passwords do not match",
+      },
+    });
+  }
+
+  const signupUC = new SignUpUseCase();
+  await signupUC.createUser(email, firstName, lastName, password);
+
+  return null;
+}
 
 export default function Page() {
   return (

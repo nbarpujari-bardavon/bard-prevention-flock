@@ -20,6 +20,7 @@
   "dependencies": {
     "@repo/eslint-config": "workspace:*",
     "@repo/typescript-config": "workspace:*",
+    "@repo/utils": "workspace:*",
     "dotenv": "^16.4.7",
     "drizzle-orm": "^0.38.4",
     "id128": "^1.6.6",

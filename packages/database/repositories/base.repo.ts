@@ -1,6 +1,7 @@
 import { type InferInsertModel, eq } from "drizzle-orm";
 import { type PgTableWithColumns } from "drizzle-orm/pg-core";
 import { db } from "..";
+import pg from "pg";
 import { Err, safeAsync } from "@repo/utils/safe-exec";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -32,18 +33,28 @@ export class BaseRepo<T extends PgTableWithColumns<AnyDrizzleSchema>> {
     return activationRequest[0];
   }
 
-  async save(values: InferInsertModel<T>) {
-    return safeAsync(
+  protected async _save(values: InferInsertModel<T>) {
+    const result = await safeAsync(
       db.insert(this.table).values(values).returning(),
-      "Error saving activation request"
+      "db_save_failed"
     );
+
+    if (result.success) {
+      return result;
+    }
+
+    if (result.originalError instanceof pg.DatabaseError) {
+      return Err(
+        PgErrorCodes[result.originalError.code || ""] || "db_save_failed",
+        result.originalError
+      );
+    }
+
+    return result;
   }
 
-  async update(id: string, values: Partial<InferInsertModel<T>>) {
-    const record = await safeAsync(
-      this.findById(id),
-      "Activation request not found"
-    );
+  protected async _update(id: string, values: Partial<InferInsertModel<T>>) {
+    const record = await safeAsync(this.findById(id), "record_not_found");
     if (!record.success) {
       return Err(record.error, record.originalError);
     }
@@ -59,7 +70,14 @@ export class BaseRepo<T extends PgTableWithColumns<AnyDrizzleSchema>> {
         .set(merged)
         .where(eq(this.table.id, id))
         .returning(),
-      "Error updating activation request"
+      "db_update_failed"
     );
   }
 }
+
+const PgErrorCodes: { [code: string]: string } = {
+  "23505": "unique_violation",
+  "23503": "foreign_key_violation",
+  "23502": "not_null_violation",
+  "23514": "check_violation",
+};
