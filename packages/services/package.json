@@ -1,24 +1,21 @@
 {
-  "name": "@repo/domain",
+  "name": "@repo/services",
   "version": "0.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "exports": {
-    "./auth": "./auth/signup.usecase.ts"
-  },
-  "dependencies": {
-    "@repo/database": "workspace:*",
-    "@repo/eslint-config": "workspace:*",
-    "@repo/services": "workspace:*",
-    "@repo/typescript-config": "workspace:*",
-    "@repo/utils": "workspace:*"
-  },
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "dependencies": {
+    "@aws-sdk/client-cognito-identity-provider": "^3.738.0",
+    "@repo/eslint-config": "workspace:*",
+    "@repo/typescript-config": "workspace:*",
+    "@repo/utils": "workspace:*",
+    "nanoid": "^5.0.9"
+  },
   "devDependencies": {
     "@types/node": "^20"
   }
